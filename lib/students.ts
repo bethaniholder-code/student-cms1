@@ -1,4 +1,3 @@
-// lib/students.ts
 import { wixClient } from "./wixClient";
 
 const COLLECTION = "Users";
@@ -16,79 +15,39 @@ export interface Student {
   monthlyFee: string;
 }
 
-export interface GetStudentsParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  status?: string;
-}
-
-export interface GetStudentsResult {
-  students: Student[];
-  total: number;
-  totalPages: number;
-  page: number;
-}
-
-// GET all students with search + pagination
-export async function getStudents({
-  page = 1,
-  limit = 10,
-  search = "",
-  status = "",
-}: GetStudentsParams = {}): Promise<GetStudentsResult> {
+export async function getStudents({ page = 1, limit = 10, search = "", status = "" } = {}) {
   let query = wixClient.items.query(COLLECTION);
-
-  if (search) {
-    query = query.contains("fullName", search);
-  }
-  if (status) {
-    query = query.eq("status", status);
-  }
-
-  const skip = (page - 1) * limit;
-  const result = await query.limit(limit).skip(skip).find();
-
+  if (search) query = query.contains("fullName", search);
+  if (status) query = query.eq("status", status);
+  const result = await query.limit(limit).skip((page - 1) * limit).find();
+  const total = result.items.length;
   return {
     students: result.items.map(normalizeStudent),
-    total: result.totalCount,
-    totalPages: Math.ceil(result.totalCount / limit),
+    total,
+    totalPages: Math.ceil(total / limit),
     page,
   };
 }
 
-// GET single student by ID
-export async function getStudent(id: string): Promise<Student> {
-  const result = await wixClient.items
-    .query(COLLECTION)
-    .eq("_id", id)
-    .find();
-  
+export async function getStudent(id: string) {
+  const result = await wixClient.items.query(COLLECTION).eq("_id", id).find();
   if (!result.items.length) throw new Error("Student not found");
   return normalizeStudent(result.items[0]);
 }
 
-// CREATE student
-export async function createStudent(data: Omit<Student, "id">): Promise<Student> {
+export async function createStudent(data: Omit<Student, "id">) {
   const result = await wixClient.items.insert(COLLECTION, toWixFormat(data));
   return normalizeStudent(result);
 }
 
-// UPDATE student
-export async function updateStudent(id: string, data: Omit<Student, "id">): Promise<Student> {
-  const result = await wixClient.items.update(COLLECTION, {
-    _id: id,
-    ...toWixFormat(data),
-  });
+export async function updateStudent(id: string, data: Omit<Student, "id">) {
+  const result = await wixClient.items.update(COLLECTION, { _id: id, ...toWixFormat(data) });
   return normalizeStudent(result);
 }
 
-// DELETE student
-export async function deleteStudent(id: string): Promise<void> {
+export async function deleteStudent(id: string) {
   await wixClient.items.remove(COLLECTION, id);
 }
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
 
 function normalizeStudent(item: any): Student {
   return {
