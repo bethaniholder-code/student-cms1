@@ -86,7 +86,7 @@ body {
 /* ─── Stats Grid ────────────────────────────────────── */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 14px;
 }
 .stat-card {
@@ -261,4 +261,39 @@ body {
   background: #fef2f2; border: 0.5px solid #fecaca;
   color: #dc2626; padding: 10px 14px;
   border-radius: 8px; font-size: 13px; margin: 12px 20px;
+}
+
+/* ─── Payment Button ────────────────────────────────── */
+.payment-btn {
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.payment-btn.paid {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.payment-btn.paid:hover {
+  background: #dcfce7;
+}
+
+.payment-btn.unpaid {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.payment-btn.unpaid:hover {
+  background: #fee2e2;
+}
+
+.payment-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
